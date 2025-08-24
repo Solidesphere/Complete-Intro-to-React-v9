@@ -1,51 +1,56 @@
-import { useState, useEffect, useContext } from "react";
-import Pizza from "./Pizza";
-import Cart from "./Cart";
-import { CartContext } from "./contexts";
-export default function Order() {
-  const intl = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  });
+import { useState, useEffect, useContext } from 'react'
+import { createLazyFileRoute } from '@tanstack/react-router'
+import Pizza from '../Pizza'
+import Cart from '../Cart'
+import { CartContext } from '../contexts'
+
+export const Route = createLazyFileRoute('/Order')({
+  component: Order,
+})
+function Order() {
+  const intl = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  })
 
   //never put hooks in a loop or conditional statements
-  const [pizzaTypes, setPizzaTypes] = useState([]);
-  const [pizzaType, setPizzaType] = useState("pepperoni");
-  const [pizzaSize, setPizzaSize] = useState("M");
-  const [cart, setCart] = useContext(CartContext);
-  const [loading, setLoading] = useState(true);
+  const [pizzaTypes, setPizzaTypes] = useState([])
+  const [pizzaType, setPizzaType] = useState('pepperoni')
+  const [pizzaSize, setPizzaSize] = useState('M')
+  const [cart, setCart] = useContext(CartContext)
+  const [loading, setLoading] = useState(true)
 
   async function checkout() {
-    setLoading(true);
-    await fetch("./api/order", {
-      method: "POST",
+    setLoading(true)
+    await fetch('./api/order', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         cart,
       }),
-    });
-    setCart([]);
-    setLoading(false);
+    })
+    setCart([])
+    setLoading(false)
   }
-  let price, selectedPizza;
+  let price, selectedPizza
 
   if (!loading) {
-    selectedPizza = pizzaTypes.find((pizza) => pizzaType === pizza.id);
-    price = intl.format(selectedPizza.sizes[pizzaSize]);
+    selectedPizza = pizzaTypes.find((pizza) => pizzaType === pizza.id)
+    price = intl.format(selectedPizza.sizes[pizzaSize])
   }
 
   async function fetchPizzaTypes() {
-    const pizzaRes = await fetch("/api/pizzas");
-    const pizzaJson = await pizzaRes.json();
-    setPizzaTypes(pizzaJson);
-    setLoading(false);
+    const pizzaRes = await fetch('/api/pizzas')
+    const pizzaJson = await pizzaRes.json()
+    setPizzaTypes(pizzaJson)
+    setLoading(false)
   }
 
   useEffect(() => {
-    fetchPizzaTypes();
-  }, []);
+    fetchPizzaTypes()
+  }, [])
 
   return (
     <div className="order-page">
@@ -53,11 +58,8 @@ export default function Order() {
         <h2>Create Order</h2>
         <form
           onSubmit={(e) => {
-            e.preventDefault();
-            setCart([
-              ...cart,
-              { pizza: selectedPizza, size: pizzaSize, price },
-            ]);
+            e.preventDefault()
+            setCart([...cart, { pizza: selectedPizza, size: pizzaSize, price }])
           }}
         >
           <div>
@@ -80,7 +82,7 @@ export default function Order() {
               <div>
                 <span>
                   <input
-                    checked={pizzaSize === "S"}
+                    checked={pizzaSize === 'S'}
                     type="radio"
                     name="pizza-size"
                     value="S"
@@ -91,7 +93,7 @@ export default function Order() {
                 </span>
                 <span>
                   <input
-                    checked={pizzaSize === "M"}
+                    checked={pizzaSize === 'M'}
                     type="radio"
                     name="pizza-size"
                     value="M"
@@ -102,7 +104,7 @@ export default function Order() {
                 </span>
                 <span>
                   <input
-                    checked={pizzaSize === "L"}
+                    checked={pizzaSize === 'L'}
                     type="radio"
                     name="pizza-size"
                     value="L"
@@ -137,5 +139,5 @@ export default function Order() {
         <Cart cart={cart} checkout={checkout} />
       )}
     </div>
-  );
+  )
 }
